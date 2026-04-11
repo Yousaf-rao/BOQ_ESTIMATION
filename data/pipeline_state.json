@@ -1,0 +1,39 @@
+{
+  "pdf_hash": "7ac18a3d93f69a3e4a32ba6aa3db1579",
+  "pdf_path": "C:\\Users\\Friends shop\\OneDrive\\Desktop\\BOQ ESTOMATION\\HVAC_Project\\data\\input_pdf\\drawing.pdf",
+  "reset_at": "2026-04-04T01:19:13.165616",
+  "steps": {
+    "step1_pdf_to_image": {
+      "status": "complete",
+      "timestamp": "2026-04-04T01:19:18.429445",
+      "elapsed_s": 5.2,
+      "result": "Drawing: 9536×6736px"
+    },
+    "step2_legend_floor_plan": {
+      "status": "complete",
+      "timestamp": "2026-04-04T01:19:21.610177",
+      "elapsed_s": 3.2,
+      "result": "Legend:2097×6736  FloorPlan:7439×6736"
+    },
+    "step3_extract_icons": {
+      "status": "complete",
+      "timestamp": "2026-04-04T01:19:57.770847",
+      "elapsed_s": 36.2,
+      "result": "Extracted: 28/32 icons"
+    },
+    "step4_spatial_detection": {
+      "status": "complete",
+      "timestamp": "2026-04-04T01:21:52.346252",
+      "elapsed_s": 114.6,
+      "result": "Detected: 32 unique symbols"
+    },
+    "step5_generate_report": {
+      "status": "complete",
+      "timestamp": "2026-04-04T01:21:52.348251",
+      "elapsed_s": 0.0,
+      "result": "Report: C:\\Users\\Friends shop\\OneDrive\\Desktop\\BOQ ESTOMATION\\HVAC_Project\\SRD_BOQ_Report.xlsx (6KB)"
+    }
+  },
+  "pipeline_status": "complete",
+  "completed_at": "2026-04-04T01:21:52.350255"
+}

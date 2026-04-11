@@ -1,0 +1,57 @@
+# ── Python cache ──────────────────────────────────────────────
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Environment / secrets ─────────────────────────────────────
+.env
+*.env
+.env.*
+
+# ── Large binary / generated data ────────────────────────────
+# Synthetic dataset images (3 000+ files, ~hundreds of MB)
+data/dataset/images/
+data/dataset/labels/
+data/dataset/sample_viz_*.png
+
+# Raw floor plan images (5-7 MB each)
+data/drawing_high_res.png
+data/floor_plan_only.png
+
+# Debug images
+debug_*.jpg
+debug_*.png
+data/icons/_debug_*.png
+
+# Tiled images
+data/output_tiles/
+data/spatial_tiles/
+data/temp_pages/
+
+# AI results (large JSON output files)
+data/ai_results/
+data/spatial_results/
+
+# Input PDFs (large)
+data/input_pdf/
+
+# ── Logs ──────────────────────────────────────────────────────
+logs/
+*.log
+
+# ── IDE / OS ──────────────────────────────────────────────────
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+desktop.ini
+
+# ── Virtual env ───────────────────────────────────────────────
+venv/
+.venv/
+env/

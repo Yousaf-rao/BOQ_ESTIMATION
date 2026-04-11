@@ -1,0 +1,29 @@
+names:
+  0: check_valve
+  1: gate_valve_hose
+  2: gate_valve_threaded
+  3: globe_valve_threaded
+  4: page_10_symbol
+  5: page_11_symbol
+  6: page_12_line_symbol
+  7: page_12_symbol
+  8: page_13_line_symbol
+  9: page_13_symbol
+  10: page_14_symbol
+  11: page_15_symbol
+  12: page_16_symbol
+  13: page_17_symbol
+  14: page_18_symbol
+  15: page_6_symbol
+  16: page_7_symbol
+  17: page_8_symbol
+  18: page_9_symbol
+  19: wye_strainer_ball_valve
+  20: wye_strainer_ball_valve_hose
+  21: wye_strainer_drain
+  22: wye_strainer_valvedDraing_quickCouple
+nc: 23
+path: C:/Users/Friends shop/OneDrive/Desktop/BOQ ESTOMATION/HVAC_Project/data/dataset
+test: images/test
+train: images/train
+val: images/val
