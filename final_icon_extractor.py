@@ -52,6 +52,8 @@ PAGE_ICON_COL = {
     9:  0.35,   # More ductwork
     10: 0.30,   # Terminal unit symbols
     11: 0.25,   # Air terminal symbols
+    12: 0.28,   # Piping line symbols
+    13: 0.28,   # More piping and hanger line symbols
 }
 DEFAULT_COL = 0.35
 
@@ -348,7 +350,11 @@ def process_page(page_num: int, screenshot_path: Path = None,
             print(f"  [SKIP] Band {idx+1}: empty")
             continue
 
-        icon = to_white_png(crop, OUTPUT_SIZE)
+        if page_num in (12, 13, 14, 15, 16, 17, 18):
+            # Piping lines are very wide; saving them as 128x128 destroys text pixels. Keep original size.
+            icon = Image.fromarray(cv2.cvtColor(crop, cv2.COLOR_BGR2RGB))
+        else:
+            icon = to_white_png(crop, OUTPUT_SIZE)
 
         fname    = f"page_{page_num}_icon_{idx+1:03d}.png"
         out_path = ICONS_DIR / fname

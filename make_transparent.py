@@ -1,37 +1,33 @@
 from PIL import Image
 from pathlib import Path
+import sys
 
-ICONS_DIR = Path(r"C:\Users\Friends shop\OneDrive\Desktop\BOQ ESTOMATION\HVAC_Project\data\icons")
-
-def make_transparent(img_path):
-    img = Image.open(img_path).convert("RGBA")
-    data = img.getdata()
-    
-    new_data = []
-    # Loop over pixels: if it's very bright (near white), make it transparent
-    for item in data:
+def make_transparent(input_path):
+    img = Image.open(input_path).convert("RGBA")
+    datas = img.getdata()
+    newData = []
+    for item in datas:
+        # Check if pixel is white or nearly white (e.g., > 240 for R, G, B)
         if item[0] > 240 and item[1] > 240 and item[2] > 240:
-            new_data.append((255, 255, 255, 0)) # Transparent white
+            newData.append((255, 255, 255, 0)) # Make it transparent
         else:
-            new_data.append(item) # Keep black/gray ink
-            
-    img.putdata(new_data)
-    img.save(img_path, "PNG")
-    print(f"Processed: {img_path.name}")
+            newData.append(item)
+    img.putdata(newData)
+    img.save(input_path, "PNG")
 
 if __name__ == "__main__":
-    count = 0
-    # Process all renamed specific files
-    target_files = [
-        "CON_REC.png", "CON_WH.png", "FCU_REC.png", "FCU_CAB.png",
-        "TWU.png", "PTAC_WIN.png", "HP.png", "HP2.png", "AC_CUR.png",
-        "UH_HOR.png", "UH_VER.png", "RCP_22.png", "RCP_24.png"
-    ]
+    icons_dir = Path("C:/Users/Friends shop/OneDrive/Desktop/BOQ ESTOMATION/HVAC_Project/data/icons")
     
-    for f in target_files:
-        path = ICONS_DIR / f
-        if path.exists():
-            make_transparent(path)
+    print("Converting white backgrounds to transparent...")
+    # List of names we just renamed to
+    names = ['S-60', 'CR-60', 'S-30', 'CR-30', 'S-15', 'CR-15', 'PC', 'HWS', 'HWR', 'GHS', 'GHR', 'SWS', 'SWR', 'RL', 'RS', 'RHG', 'CWS', 'CWR', 'CHS', 'CHR', 'GCS', 'GCR', 'MW', 'D', 'V', 'GRS', 'GRR', 'X']
+    
+    count = 0
+    for name in names:
+        f = icons_dir / f"{name}.png"
+        if f.exists():
+            make_transparent(f)
             count += 1
+            print(f" [OK] {name}.png is now transparent")
             
-    print(f"\nSuccessfully made {count} symbols transparent!")
+    print(f"Total processed: {count} files")
