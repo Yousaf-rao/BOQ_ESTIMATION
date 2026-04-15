@@ -2,29 +2,29 @@
 # day3_opencv_basics.py — Day 3: Mastering Basic OpenCV (Image Manipulation)
 # ============================================================================
 #
-# 🎯 OBJECTIVE: (Kya karenge?)
-#   OpenCV library ki basic skills seekhna:
-#   1. Image load karna (cv2.imread)
-#   2. Color → Grayscale convert karna
-#   3. Image crop (slice) karna — koi bhi hissa kaat ke alag save karna
-#   4. Image resize karna
-#   5. Basic image info dekhna
+# 🎯 OBJECTIVE:
+#   Learn the basic skills of the OpenCV library:
+#   1. Load an image (cv2.imread)
+#   2. Convert Color → Grayscale
+#   3. Crop (slice) an image — cut any section and save it separately
+#   4. Resize an image
+#   5. View basic image information
 #
-#   Yeh skills Day 4 (Legend Extraction) aur Day 5-6 (Tiling) mein kaam aayengi.
+#   These skills will be used in Day 4 (Legend Extraction) and Day 5-6 (Tiling).
 #
 # 📝 HOW TO RUN:
 #       python day3_opencv_basics.py
 #
 # 🔗 DEPENDS ON:
-#   - Day 2 complete hona chahiye (drawing_high_res.png exist karni chahiye)
-#   - Agar Day 2 ka output nahi hai, toh yeh script ek demo image bana lega
+#   - Day 2 must be complete (drawing_high_res.png must exist)
+#   - If Day 2 output is missing, this script will generate a demo image
 #
 # ============================================================================
 
 import cv2           # OpenCV  — Image processing library
 import numpy as np   # NumPy   — Image = NumPy array (matrix of numbers)
 import os            # OS      — File/folder operations
-import logging       # Logging — Progress track karna
+import logging       # Logging — For tracking progress
 
 from config import CONFIG
 
@@ -38,19 +38,19 @@ logging.basicConfig(
 
 
 # ============================================================================
-# CONCEPT: Image Kya Hai?
+# CONCEPT: What is an Image?
 # ============================================================================
 #
-# Computer ke liye image = NUMBERS KA MATRIX (grid of numbers)
+# For a computer, an image = A MATRIX OF NUMBERS (grid of numbers)
 #
 # Example (3x3 grayscale image):
 #   [[ 0,   128, 255],
 #    [ 64,  192, 32 ],
 #    [ 200, 100, 50 ]]
 #
-#   0   = Pure Black (bilkul kaala)
-#   255 = Pure White (bilkul safed)
-#   128 = Gray (beech ka)
+#   0   = Pure Black
+#   255 = Pure White
+#   128 = Gray (in between)
 #
 # Color Image = 3D Matrix (height × width × 3)
 #   3 channels: Blue, Green, Red (OpenCV ka order = BGR)
@@ -64,19 +64,19 @@ logging.basicConfig(
 
 class OpenCVBasics:
     """
-    OpenCV ki basic image processing operations seekhne ke liye class.
+    Class to learn basic image processing operations using OpenCV.
     
-    Yeh class step-by-step sikhati hai:
-        1. Image kaise load karte hain
-        2. Grayscale mein kaise convert karte hain
-        3. Image ka koi hissa kaise crop karte hain
-        4. Image kaise resize karte hain
+    This class teaches step-by-step:
+        1. How to load an image
+        2. How to convert an image to grayscale
+        3. How to crop a specific part of an image
+        4. How to resize an image
     
-    Har function mein comments hain jo explain karte hain KYA ho raha hai.
+    Every function contains comments explaining what is happening.
     """
     
     def __init__(self):
-        """Constructor — output folder setup"""
+        """Constructor — Set up the output folder"""
         self.base_dir = os.path.dirname(os.path.abspath(__file__))
         self.practice_dir = os.path.join(self.base_dir, "data", "practice")
         os.makedirs(self.practice_dir, exist_ok=True)
@@ -84,20 +84,20 @@ class OpenCVBasics:
     
     def load_image(self, image_path):
         """
-        SKILL 1: Image File Ko Load Karna
+        SKILL 1: Loading an Image File
         
-        cv2.imread() function image file ko padh ke NumPy array return karta hai.
+        The cv2.imread() function reads the image file and returns a NumPy array.
         
         Parameters:
-            image_path : Image file ka path (PNG, JPG, BMP, etc.)
+            image_path : Path of the image file (PNG, JPG, BMP, etc.)
         
         Returns:
-            NumPy array (BGR format) ya None agar load fail ho
+            NumPy array (BGR format) or None if load fails.
         
         IMPORTANT FLAGS:
-            cv2.IMREAD_COLOR      = Color mein load karo (default)
-            cv2.IMREAD_GRAYSCALE  = Directly grayscale mein load karo
-            cv2.IMREAD_UNCHANGED  = Transparency channel bhi rakho (RGBA)
+            cv2.IMREAD_COLOR      = Load in color (default)
+            cv2.IMREAD_GRAYSCALE  = Directly load in grayscale
+            cv2.IMREAD_UNCHANGED  = Retain the transparency channel (RGBA)
         """
         
         print(f"\n  📷 Loading image: {os.path.basename(image_path)}")
@@ -130,20 +130,20 @@ class OpenCVBasics:
     
     def convert_to_grayscale(self, img, save_path=None):
         """
-        SKILL 2: Color Image Ko Grayscale Mein Convert Karna
+        SKILL 2: Converting Color Image to Grayscale
         
         WHY GRAYSCALE?
-            - Grayscale mein sirf 1 channel hai (0-255, black to white)
-            - Color mein 3 channels hain (B, G, R)
-            - Grayscale se:
-                1. File size 3x kam hoti hai
-                2. Processing 3x fast hoti hai
-                3. Symbol detection asaan hoti hai (sirf shapes matter karte hain)
-            - Engineering drawings mein color usually important nahi hoti
+            - Grayscale has only 1 channel (0-255, black to white)
+            - Color has 3 channels (B, G, R)
+            - Grayscale benefits:
+                1. File size is reduced by 3x
+                2. Processing is 3x faster
+                3. Symbol detection becomes easier (only shapes matter)
+            - Color is usually not important in engineering drawings.
         
         Parameters:
             img       : Color image (NumPy array, BGR)
-            save_path : Agar diya toh grayscale image yahan save hogi
+            save_path : If provided, the grayscale image will be saved here.
         
         Returns:
             Grayscale image (NumPy array, single channel)
@@ -176,16 +176,16 @@ class OpenCVBasics:
     
     def crop_region(self, img, x_start, y_start, x_end, y_end, save_path=None):
         """
-        SKILL 3: Image Ka Koi Bhi Hissa Crop (Kaat) Karna
+        SKILL 3: Crop (Slice) Any Section of an Image
         
         CONCEPT — NumPy Slicing:
-            Image ek matrix hai: img[row, column] = img[y, x]
+            An image is a matrix: img[row, column] = img[y, x]
             
-            ⚠️ IMPORTANT: OpenCV mein coordinates ka order hai:
+            ⚠️ IMPORTANT: In OpenCV, the order of coordinates is:
                 img[y_start : y_end, x_start : x_end]
                      ↑ rows (vertical)   ↑ columns (horizontal)
             
-            Yani PEHLE y (upar-neeche), PHIR x (dayen-bayen)
+            Meaning: y (up-down) goes FIRST, THEN x (left-right).
         
         VISUAL EXPLANATION:
             Original Image (1000 x 800):
