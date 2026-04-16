@@ -19,6 +19,16 @@ data/dataset/images/
 data/dataset/labels/
 data/dataset/sample_viz_*.png
 
+# Archive files (too large for GitHub)
+*.zip
+*.rar
+
+# Training backgrounds (40+ files, ~41 MB)
+data/training_backgrounds_2000/
+
+# High-res drawings without legends (~68 MB)
+data/high_res_drawings_no_legend/
+
 # Raw floor plan images (5-7 MB each)
 data/drawing_high_res.png
 data/floor_plan_only.png

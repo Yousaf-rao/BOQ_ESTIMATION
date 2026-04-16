@@ -86,6 +86,10 @@ class Config:
         r"C:\Users\Friends shop\OneDrive\Desktop\BOQ ESTOMATION"
         r"\HVAC_Project\data\dataset"
     )
+    backgrounds_dir: str = (
+        r"C:\Users\Friends shop\OneDrive\Desktop\BOQ ESTOMATION"
+        r"\HVAC_Project\data\training_backgrounds_2000"
+    )
 
     # ?? dataset size ??????????????????????????????????????????
     total_images: int = 3000          # 2000–5000 recommended
@@ -94,8 +98,8 @@ class Config:
     test_ratio:  float = 0.05
 
     # ?? canvas ????????????????????????????????????????????????
-    img_width:  int = 640
-    img_height: int = 640
+    img_width:  int = 2000
+    img_height: int = 2000
 
     # ?? symbol placement ??????????????????????????????????????
     min_symbols_per_image: int = 1
@@ -251,16 +255,53 @@ class SyntheticDataGenerator:
     # ?? background generation ?????????????????????????????????
 
     def _generate_backgrounds(self):
-        print(f"\n[CFG]  Generating {self.cfg.num_backgrounds} CAD backgrounds …")
-        generators = [
-            self._bg_grid,
-            self._bg_blueprint,
-            self._bg_clean_white,
-            self._bg_worn_paper,
-        ]
-        for i in range(self.cfg.num_backgrounds):
-            self.backgrounds.append(generators[i % len(generators)]())
-        print(f"[OK] {len(self.backgrounds)} backgrounds ready")
+        """Load real backgrounds. Supports all .png/.jpg files in backgrounds_dir."""
+        bg_p = Path(self.cfg.backgrounds_dir)
+        files = list(bg_p.glob("*.png")) + list(bg_p.glob("*.jpg"))
+
+        if not files:
+            print(f"[WARN] No backgrounds found in {bg_p}. Using white canvas.")
+            self.backgrounds = [np.full((self.cfg.img_height, self.cfg.img_width, 3), 255, dtype=np.uint8)]
+            return
+
+        print(f"\n[BG] Loading {len(files)} real backgrounds (2000x2000) ...")
+        for f in files[:self.cfg.num_backgrounds]:
+            img = cv2.imread(str(f))
+            if img is not None:
+                # Ensure exact canvas size
+                img = cv2.resize(img, (self.cfg.img_width, self.cfg.img_height))
+                self.backgrounds.append(img)
+
+        # Augment to fill up to num_backgrounds if fewer files available
+        original_count = len(self.backgrounds)
+        while len(self.backgrounds) < self.cfg.num_backgrounds:
+            base = random.choice(self.backgrounds[:original_count]).copy()
+            flip_code = random.choice([-1, 0, 1])
+            base = cv2.flip(base, flip_code)
+            self.backgrounds.append(base)
+
+        print(f"[OK] {len(self.backgrounds)} backgrounds ready (including augmented flips)")
+
+
+    def _crop_or_pad(self, img: np.ndarray, target_w: int, target_h: int) -> np.ndarray:
+        h, w = img.shape[:2]
+        if h == target_h and w == target_w:
+            return img
+
+        # Crop if too large
+        if h > target_h or w > target_w:
+            y = random.randint(0, max(0, h - target_h))
+            x = random.randint(0, max(0, w - target_w))
+            img = img[y:y+target_h, x:x+target_w]
+            h, w = img.shape[:2]
+
+        # Pad if too small
+        if h < target_h or w < target_w:
+            pad_bg = np.full((target_h, target_w, 3), 255, dtype=np.uint8)
+            pad_bg[:h, :w] = img
+            return pad_bg
+
+        return img
 
     def _bg_grid(self) -> np.ndarray:
         """Engineering graph paper (white + light grid)."""
@@ -581,6 +622,89 @@ class SyntheticDataGenerator:
                                 allow_unicode=True), encoding="utf-8")
         print(f"[NOTE] Saved dataset.yaml")
 
+    # ── NEW: generate() with 15% Negative Samples ──────────────────────────────
+
+    def generate(self):
+        """Main loop: Positive samples + 15% Negative (background-only) samples."""
+        t0 = time.time()
+        print(f"\n[START] Generating {self.cfg.total_images} images (15% will be negative samples)...")
+        n_train = int(self.cfg.total_images * self.cfg.train_ratio)
+        n_val   = int(self.cfg.total_images * self.cfg.val_ratio)
+
+        for i in progress_wrap(range(self.cfg.total_images), desc="Generating"):
+            # Determine split based on index
+            r = i / self.cfg.total_images
+            if r < self.cfg.train_ratio:
+                split = "train"
+            elif r < self.cfg.train_ratio + self.cfg.val_ratio:
+                split = "val"
+            else:
+                split = "test"
+
+            # 15% chance: pure background (no symbols) = Negative Sample
+            is_negative = (random.random() < 0.15)
+            self._create_image(i, split, is_negative)
+
+        elapsed = time.time() - t0
+        self._save_yaml()
+        print(f"\n[OK] DONE! {self.cfg.total_images} images in {elapsed:.1f}s ({elapsed/60:.1f} min)")
+        print(f"[DIR] Output -> {self.out}")
+
+    def _create_image(self, idx: int, split: str, is_negative: bool) -> None:
+        """Generate one image: paste icons on background, write YOLO label."""
+        bg_np = random.choice(self.backgrounds).copy()
+        # Convert to PIL RGB for alpha blending
+        canvas = Image.fromarray(cv2.cvtColor(bg_np, cv2.COLOR_BGR2RGB))
+
+        labels = []
+        if not is_negative:
+            num_syms = random.randint(self.cfg.min_symbols_per_image,
+                                     self.cfg.max_symbols_per_image)
+            for _ in range(num_syms):
+                cls_name  = random.choice(self.class_names)
+                icon_p    = random.choice(self.class_icons[cls_name])
+
+                # Open and prepare icon
+                icon = Image.open(icon_p).convert("RGBA")
+                icon.thumbnail((self.cfg.max_icon_dim, self.cfg.max_icon_dim))
+
+                scale = random.uniform(self.cfg.min_scale, self.cfg.max_scale)
+                new_w = max(8, int(icon.width  * scale))
+                new_h = max(8, int(icon.height * scale))
+                icon  = icon.resize((new_w, new_h), Image.Resampling.LANCZOS)
+
+                # HVAC standard rotations
+                icon = icon.rotate(random.choice([0, 90, 180, 270]), expand=True)
+
+                # Placement boundaries
+                max_x = self.cfg.img_width  - icon.width  - 20
+                max_y = self.cfg.img_height - icon.height - 20
+                if max_x < 20 or max_y < 20:
+                    continue
+
+                x = random.randint(20, max_x)
+                y = random.randint(20, max_y)
+
+                # Alpha-blend onto canvas
+                canvas.paste(icon, (x, y), icon)
+
+                # YOLO normalised label
+                cx = (x + icon.width  / 2) / self.cfg.img_width
+                cy = (y + icon.height / 2) / self.cfg.img_height
+                nw = icon.width  / self.cfg.img_width
+                nh = icon.height / self.cfg.img_height
+                labels.append(f"{self.class_to_id[cls_name]} {cx:.6f} {cy:.6f} {nw:.6f} {nh:.6f}")
+
+        # Save image (high quality JPG)
+        fname = f"synth_{idx:05d}"
+        canvas.save(self.out / "images" / split / f"{fname}.jpg", quality=95)
+
+        # Save label (.txt empty for negatives — YOLO standard)
+        with open(self.out / "labels" / split / f"{fname}.txt", "w", encoding="utf-8") as f:
+            if labels:
+                f.write("\n".join(labels))
+
+
 
 # ??????????????????????????????????????????????????????????????
 # DATASET VERIFIER
@@ -863,7 +987,7 @@ Examples
 
     if args.mode in ("generate", "both"):
         gen = SyntheticDataGenerator(cfg)
-        gen.generate_dataset()
+        gen.generate()   # Uses 15% negative samples + PIL alpha blending
 
     if args.mode in ("verify", "both"):
         ver = DatasetVerifier(args.output)
