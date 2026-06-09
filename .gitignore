@@ -1,0 +1,6 @@
+HVAC_BOQ.v2i.yolov11/
+hvac_model_v1/
+*.rar
+*.pdf
+*.png
+__pycache__/

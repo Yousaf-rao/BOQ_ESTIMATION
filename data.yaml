@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 11
+names: ['CO2 SENSOR', 'EXHAUST DUCT UP', 'EXHUST DISC VALUE', 'RETURN DUCT UP', 'RETURN LINEAR DIFFUSER', 'SQUARE 4-WAY CEILING DIFFUSERS', 'SUPPLY DUCT UP', 'SUPPLY LINEAR DIFFUSER', 'THERMOSTAT', 'return_ceiling_diffuser', 'supply_ceiling_diffuser']
+
+roboflow:
+  workspace: jadeedxs-workspace
+  project: hvac_boq-cptal
+  version: 1
+  license: Private
+  url: https://app.roboflow.com/jadeedxs-workspace/hvac_boq-cptal/1

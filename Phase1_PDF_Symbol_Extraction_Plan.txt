@@ -1,0 +1,45 @@
+=========================================================
+      PHASE 1.2: 18-PAGE PDF SYMBOL EXTRACTION PLAN 
+          (Automated Crop & Cleanup Approach)
+=========================================================
+Target: 18-pages ki PDF mein mojood HVAC symbols ko automatically detect kar ke, kaat kar, transparent PNGs mein badalna aur 'data/icons' folder mein save karna.
+
+---------------------------------------------------------
+STEP 1: PDF TO IMAGE CONVERSION (High Quality)
+---------------------------------------------------------
+- 18 pages ki aisi PDF jisme symbols hain, usay 'pdf2image' library use karke High Resolution (minimum 300 to 600 DPI) images mein convert kiya jayega.
+- Har page ek alag Image file ban jayega (maslan: page_1.png, page_2.png).
+- Is se symbol ke edges (lines) clear rahenge.
+
+---------------------------------------------------------
+STEP 2: SYMBOL BOX DETECTION (Computer Vision / OpenCV)
+---------------------------------------------------------
+- Kyunke PDF mein symbols aam taur par lines/grids ya tables ke andar hote hain, hum OpenCV ka istemal karenge.
+- Edge Detection (Canny) aur Contours nikal kar hum har us dabbe (box) ko pehchanenge jahan symbol draw hua hai.
+- Agar symbols bina box ke hain, to Image Thresholding use kar ke black lines (drawing) ke ird-gird automatic bounding box (rectangle) banaya jayega.
+
+---------------------------------------------------------
+STEP 3: AUTOMATIC CROPPING
+---------------------------------------------------------
+- Step 2 mein jo boxes / rectangles detect hue, unke coordinates (x, y, width, height) nikal lenge.
+- Python ka script (Pillow / OpenCV) in coordinates ki madad se har symbol ko page me se automatically kaat (crop) lega.
+- In crop kiye hue chote hisson ko pehle temporary folder (e.g., 'temp_crops') mein save karenge.
+
+---------------------------------------------------------
+STEP 4: BACKGROUND REMOVAL & TRANSPARENCY
+---------------------------------------------------------
+- Crop hone ke baad har symbol ka background white hoga. Hamein isay transparent karna hai (taake baad mein synthetic dataset mein asani se backgrounds par paste ho sake).
+- Isme hum image ko RGBA mode mein le ja kar sara "White" color delete kar denge aur usay bilkul transparent (sheeshe jaisa) bana denge.
+- Yahan black lines/icons intact rahengi.
+- (Optional: Agar manual zaroorat pare to ek "Validation UI" banaya ja sakta hai jahan aap theek name assign kar saken).
+
+---------------------------------------------------------
+STEP 5: NAMING & SAVING TO 'data/icons'
+---------------------------------------------------------
+- Har saaf aur transparent symbol ko uske naam se save kiya jayega. (Agar PDF mein uske sath naam text mein likha hai to OCR 'EasyOCR' chala kar text read kar lenge, taake file ka naam bakhud generate ho jaye jaise 'supply_diffuser.png').
+- Result: Sary symbols 'data/icons/' folder mein aa jayenge. Ab ye YOLO training (Synthetic dataset) ke liye 100% ready honge.
+
+=========================================================
+ACTION PLAN FOR STARTING NOW:
+Aap us 18-pages wali PDF ka naam batayen aur usay asani se root folder (BOQ ESTOMATION) mein rakhen. Phir hum "Step 1" ka Python script likhna shuru karte hain jo is PDF se images extract karega.
+=========================================================

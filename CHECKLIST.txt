@@ -1,0 +1,159 @@
+✅ HVAC SYMBOL DETECTION — QUICK CHECKLIST
+═══════════════════════════════════════════════════════════════════════════
+
+TODAY: LOCAL PROCESSING
+─────────────────────────────────────────────────────────────────────────
+
+☐ Step 1: Edit hvac_final_solution.py
+  ☐ Line 18: INPUT_DIR = r"C:\path\to\HVAC_BOQ.v2i.yolov11"
+  ☐ Line 19: OUTPUT_DIR = r"C:\path\to\output\hvac_final_clean"
+  ☐ Save file
+
+☐ Step 2: Open Command Prompt
+  ☐ cd C:\Users\Friends shop\...  (wherever script is)
+  ☐ python hvac_final_solution.py
+
+☐ Step 3: Wait for output
+  Expected: "✅ COMPLETE!" message after ~5 minutes
+
+☐ Step 4: Check output folder
+  ☐ hvac_final_clean exists?
+  ☐ images/train has ~51 files?
+  ☐ images/val has ~9 files?
+  ☐ labels/train has ~51 .txt files?
+  ☐ data.yaml exists?
+
+☐ Step 5: ZIP the output
+  ☐ Right click hvac_final_clean → Send to → Compressed Folder
+  ☐ Name: hvac-final-clean.zip
+  ☐ Size should be < 100 MB
+
+═══════════════════════════════════════════════════════════════════════════
+TOMORROW: KAGGLE SETUP (10 MINUTES)
+─────────────────────────────────────────────────────────────────────────
+
+☐ Step 1: Upload to Kaggle
+  ☐ Go to kaggle.com
+  ☐ Click "Datasets" → "Create New Dataset"
+  ☐ Upload hvac-final-clean.zip
+  ☐ Title: "hvac-symbol-detection-clean"
+  ☐ Make PUBLIC
+  ☐ Click "Create"
+  ☐ Wait for upload to complete (~5 min)
+
+☐ Step 2: Create Notebook
+  ☐ In dataset page, click "New Notebook"
+  ☐ Name: "HVAC Training"
+  ☐ Add your dataset as input (done auto)
+  ☐ Change runtime to GPU (T4)
+
+═══════════════════════════════════════════════════════════════════════════
+SAME DAY: KAGGLE TRAINING (90-120 MINUTES)
+─────────────────────────────────────────────────────────────────────────
+
+☐ Step 1: CELL 1 — Install
+  ☐ Copy code from kaggle_training_notebook.py (CELL 1)
+  ☐ Paste in notebook
+  ☐ Run (↑ button)
+  ☐ Wait for "GPU Status: ..." output
+
+☐ Step 2: CELL 2 — Verify Data
+  ☐ Copy code (CELL 2)
+  ☐ Run
+  ☐ Should show:
+    Train images: 51
+    Val images: 9
+
+☐ Step 3: CELL 3 — Fix YAML
+  ☐ Copy code (CELL 3)
+  ☐ Run
+  ☐ Should show your YAML config
+
+☐ Step 4: CELL 4 — Load Model
+  ☐ Copy code (CELL 4)
+  ☐ Run
+  ☐ Should say "Model loaded: ..."
+
+☐ Step 5: CELL 5 — TRAIN ⏱️ (90-120 min)
+  ☐ Copy entire training code (CELL 5)
+  ☐ Run
+  ☐ Watch the progress
+  ☐ Look for:
+    ☐ Epoch 1... (should appear every 10 seconds)
+    ☐ box_loss decreasing (3.0 → 0.5)
+    ☐ mAP50 appearing by epoch 10
+    ☐ Final message: "✅ TRAINING COMPLETE!"
+  ☐ If stuck, check:
+    ☐ GPU memory? (nvidia-smi in terminal)
+    ☐ If OOM: reduce batch=8 in CELL 5
+
+☐ Step 6: CELL 6-9 — Results & Save
+  ☐ Copy code (CELL 6)
+  ☐ Run (shows metrics)
+  ☐ Copy code (CELL 7)
+  ☐ Run (shows graphs)
+  ☐ Copy code (CELL 8)
+  ☐ Run (saves best.pt)
+  ☐ Copy code (CELL 9)
+  ☐ Run (test on sample)
+
+═══════════════════════════════════════════════════════════════════════════
+DAY 3: DOWNLOAD & TEST
+─────────────────────────────────────────────────────────────────────────
+
+☐ Step 1: Download best.pt
+  ☐ In Kaggle, go to Output section
+  ☐ Click "best.pt"
+  ☐ Download
+  ☐ Save to your PC: C:\...\best.pt
+
+☐ Step 2: Test (optional)
+  ☐ Create Python script to test on big drawing
+  ☐ Or use Kaggle notebook CELL 9 (already does this)
+
+═══════════════════════════════════════════════════════════════════════════
+VERIFICATION CHECKLIST
+─────────────────────────────────────────────────────────────────────────
+
+Output images should have:
+☐ No title block text at bottom?
+☐ No legend on right side?
+☐ No black borders?
+☐ Symbols clearly visible (20-40px)?
+☐ Less than 15% white space?
+
+Training should show:
+☐ box_loss: 3.0 → 0.5 (decreasing)?
+☐ mAP50: 0.0 → 0.55-0.70?
+☐ No CUDA errors?
+☐ No NaN losses?
+
+═══════════════════════════════════════════════════════════════════════════
+RED FLAGS (If you see these, STOP and tell me):
+─────────────────────────────────────────────────────────────────────────
+
+❌ "Cannot read image" — INPUT path wrong
+❌ "mAP50 stays 0.00" — YAML path wrong in Kaggle
+❌ "CUDA out of memory" — Reduce batch size to 8
+❌ "box_loss = NaN" — Dataset has corrupted files
+❌ "Labels lost > 5%" — Images have weird label format
+
+═══════════════════════════════════════════════════════════════════════════
+ESTIMATE RESULTS
+─────────────────────────────────────────────────────────────────────────
+
+mAP50:  0.55-0.70
+Recall: 0.70-0.85
+Precision: 0.65-0.80
+Time: 1-2 hours (Kaggle T4)
+Model Size: ~26 MB
+
+═══════════════════════════════════════════════════════════════════════════
+Questions? 
+- Check error message (Google it)
+- Verify paths are correct
+- Run script again
+- Don't overthink it
+
+Go! 🚀
+═══════════════════════════════════════════════════════════════════════════
