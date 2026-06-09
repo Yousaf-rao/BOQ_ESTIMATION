@@ -1,0 +1,59 @@
+# HVAC BOQ Automation Project - End-to-End Roadmap
+
+## Phase 1: The "Vision" Engine (Data Pre-processing)
+**Objective**: Prepare messy CAD PDFs for the AI to "see" clearly.
+- [ ] Task 1.1: PDF-to-Image Pipeline
+  - Write a Python module using `PyMuPDF (fitz)` to convert large A0/A1 drawings into high-resolution (300 DPI) images.
+- [ ] Task 1.2: The "Legend" Extractor
+  - Use `OpenCV` to automatically detect the "Legend" area (usually on the right side) and crop it. This serves as the "Reference Image."
+- [ ] Task 1.3: Intelligent Tiling
+  - Build a script to "slice" the floor plan into overlapping tiles (e.g., 1000x1000 pixels). Ensure overlap so symbols cut at edges are not missed.
+
+## Phase 2: The "Brain" Integration (Gemini 1.5 Pro API)
+**Objective**: Connect the AI and get structured data.
+- [ ] Task 2.1: System Prompting
+  - Design system instructions configuring the AI role as an expert HVAC Engineer.
+- [ ] Task 2.2: Multimodal Input
+  - Write the API call that sends two images simultaneously:
+    - Image A: The Legend (Reference).
+    - Image B: One Tile of the floor plan.
+- [ ] Task 2.3: JSON Enforcement
+  - Use "Response Schema" to force the AI to return a structured list:
+    `[{"symbol": "VCD", "count": 4, "metadata": "Manual Damper"}, {"symbol": "Diffuser", "count": 12, "size": "600x600"}]`
+
+## Phase 3: The "Aggregator" (Logic & De-duplication)
+**Objective**: Clean the AI's raw output into real numbers.
+- [ ] Task 3.1: Overlap Cleaning
+  - Build Coordinate-based De-duplication logic to ensure one physical item in the overlapping tile sections is counted only once.
+- [ ] Task 3.2: Error Handling
+  - Create a "Low Confidence" flag. If the AI is unsure, mark it for human review instead of guessing.
+- [ ] Task 3.3: OCR Text Linkage
+  - Use the AI to read text labels next to symbols (e.g., "Duct Size: 300x200") to add detail to the BOQ.
+
+## Phase 4: The "Takeoff" (BOQ Generation)
+**Objective**: Final Output in Industry Standard Excel.
+- [ ] Task 4.1: Excel Automation
+  - Use `Pandas` and `Openpyxl` to map the JSON data into a Master BOQ Template.
+- [ ] Task 4.2: Categorization
+  - Automatically group items by type (e.g., "Air Terminals," "Dampers," "Piping Accessories").
+- [ ] Task 4.3: Scale Calculation
+  - Detect the drawing scale (e.g., 1:100) from the title block and calculate Duct Lengths based on the pixel-to-meter ratio.
+
+## Phase 5: The "Review Dashboard" (UI/UX)
+**Objective**: Make it usable for a non-technical HVAC Engineer.
+- [ ] Task 5.1: Web Interface
+  - Build a simple UI using `Streamlit`.
+- [ ] Task 5.2: Visual Feedback
+  - Provide functionality where clicking a row in the Excel/Table highlights the specific symbol on the drawing.
+- [ ] Task 5.3: Final Export
+  - Implement a "Download BOQ" button that provides the validated Excel file.
+
+---
+## Technical Stack Setup Checklist
+- [ ] Setup Python 3.10+ Virtual Environment.
+- [ ] Install AI packages: `google-generativeai` (for Gemini API).
+- [ ] Install CV & Image packages: `opencv-python`, `PyMuPDF`, `Pillow`.
+- [ ] Install Data packages: `pandas`, `openpyxl`.
+- [ ] Install UI packages: `streamlit`.
+
+**Next Steps**: We should begin by initializing the project environment and tackling Phase 1. Let me know when you are ready to start with Task 1.1!

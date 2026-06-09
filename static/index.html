@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HVAC BOQ Estimator — AI Vision Engine</title>
+    <meta name="description" content="Automated HVAC Bill of Quantities generation using AI Vision. Upload drawings, get instant BOQ.">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Animated Background -->
+    <div class="bg-grid"></div>
+    <div class="glow glow-1"></div>
+    <div class="glow glow-2"></div>
+    <div class="glow glow-3"></div>
+    <div class="particles" id="particles"></div>
+
+    <div class="app-shell">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-logo">
+                <div class="logo-icon">
+                    <i class="fa-solid fa-snowflake"></i>
+                </div>
+                <div class="logo-text">
+                    <span class="brand">HVAC<span class="accent">.AI</span></span>
+                    <span class="tagline">BOQ Estimator</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-item active" data-step="1">
+                    <div class="nav-dot"><span>1</span></div>
+                    <span>Upload Drawing</span>
+                </div>
+                <div class="nav-connector"></div>
+                <div class="nav-item" data-step="2">
+                    <div class="nav-dot"><span>2</span></div>
+                    <span>AI Processing</span>
+                </div>
+                <div class="nav-connector"></div>
+                <div class="nav-item" data-step="3">
+                    <div class="nav-dot"><span>3</span></div>
+                    <span>Download BOQ</span>
+                </div>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="tech-badge">
+                    <i class="fa-solid fa-microchip"></i>
+                    <span>LLaMA Vision AI</span>
+                </div>
+                <div class="tech-badge">
+                    <i class="fa-solid fa-bolt"></i>
+                    <span>Groq Inference</span>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content Area -->
+        <main class="main-content">
+            <!-- Top Bar -->
+            <div class="topbar">
+                <div class="breadcrumb">
+                    <i class="fa-solid fa-house"></i>
+                    <span>/</span>
+                    <span id="breadcrumb-text">Upload Drawing</span>
+                </div>
+                <div class="topbar-right">
+                    <div class="status-chip online">
+                        <span class="pulse-dot"></span>
+                        System Online
+                    </div>
+                </div>
+            </div>
+
+            <!-- ============ STEP 1: UPLOAD ============ -->
+            <section id="step-upload" class="step-section active">
+                <div class="section-header">
+                    <div>
+                        <h1>Upload Your Drawing</h1>
+                        <p class="section-desc">Drop a high-resolution HVAC floor plan (PDF or PNG) to begin automated extraction.</p>
+                    </div>
+                    <div class="header-badge">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        AI-Powered
+                    </div>
+                </div>
+
+                <div class="upload-zone" id="drop-zone">
+                    <input type="file" id="file-input" accept=".pdf,.png,.jpg,.jpeg" hidden>
+                    <div class="upload-visual">
+                        <div class="upload-rings">
+                            <div class="ring ring-1"></div>
+                            <div class="ring ring-2"></div>
+                            <div class="ring ring-3"></div>
+                            <div class="upload-center-icon">
+                                <i class="fa-solid fa-cloud-arrow-up"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <h2>Drag & Drop</h2>
+                    <p>your HVAC drawing here, or <span class="link-text" onclick="document.getElementById('file-input').click()">browse files</span></p>
+                    <div class="upload-tags">
+                        <span class="tag"><i class="fa-solid fa-file-pdf"></i> PDF</span>
+                        <span class="tag"><i class="fa-solid fa-image"></i> PNG</span>
+                        <span class="tag"><i class="fa-solid fa-image"></i> JPG</span>
+                        <span class="tag-limit">Max 50MB</span>
+                    </div>
+                </div>
+
+                <!-- File Selected Preview -->
+                <div id="file-preview" class="file-card hidden">
+                    <div class="file-card-left">
+                        <div class="file-icon-box">
+                            <i class="fa-solid fa-file-lines"></i>
+                        </div>
+                        <div class="file-meta">
+                            <span class="file-name" id="file-name">drawing.pdf</span>
+                            <span class="file-size" id="file-size">2.4 MB</span>
+                        </div>
+                    </div>
+                    <div class="file-card-right">
+                        <button class="btn-remove" onclick="removeFile()"><i class="fa-solid fa-xmark"></i></button>
+                        <button class="btn-primary" id="start-btn">
+                            <i class="fa-solid fa-rocket"></i>
+                            Start AI Analysis
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Feature Cards -->
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-eye"></i></div>
+                        <h3>Symbol Detection</h3>
+                        <p>Identifies SCDs, RCDs, VAVs, dampers, and 30+ HVAC symbols from complex drawings.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-layer-group"></i></div>
+                        <h3>Smart Tiling</h3>
+                        <p>Splits large A0/A1 drawings into overlapping tiles for maximum detection accuracy.</p>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon"><i class="fa-solid fa-file-excel"></i></div>
+                        <h3>Excel BOQ Output</h3>
+                        <p>Generates a professional BOQ with quantities, rates, and human verification columns.</p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ STEP 2: PROCESSING ============ -->
+            <section id="step-processing" class="step-section hidden">
+                <div class="section-header">
+                    <div>
+                        <h1>AI Engine Active</h1>
+                        <p class="section-desc">Vision model is scanning your drawing for HVAC symbols...</p>
+                    </div>
+                    <div class="processing-timer">
+                        <i class="fa-solid fa-clock"></i>
+                        <span id="timer">00:00</span>
+                    </div>
+                </div>
+
+                <!-- Progress -->
+                <div class="progress-card">
+                    <div class="progress-header">
+                        <span class="progress-label" id="progress-label">Initializing...</span>
+                        <span class="progress-pct" id="progress-pct">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progress-fill"></div>
+                    </div>
+                </div>
+
+                <!-- Live Pipeline Steps -->
+                <div class="pipeline-grid">
+                    <div class="pipe-step" id="pipe-1">
+                        <div class="pipe-icon"><i class="fa-solid fa-scissors"></i></div>
+                        <div class="pipe-info">
+                            <span class="pipe-title">PDF Tiling</span>
+                            <span class="pipe-status">Waiting...</span>
+                        </div>
+                    </div>
+                    <div class="pipe-step" id="pipe-2">
+                        <div class="pipe-icon"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="pipe-info">
+                            <span class="pipe-title">Legend Extraction</span>
+                            <span class="pipe-status">Waiting...</span>
+                        </div>
+                    </div>
+                    <div class="pipe-step" id="pipe-3">
+                        <div class="pipe-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="pipe-info">
+                            <span class="pipe-title">AI Vision Scan</span>
+                            <span class="pipe-status">Waiting...</span>
+                        </div>
+                    </div>
+                    <div class="pipe-step" id="pipe-4">
+                        <div class="pipe-icon"><i class="fa-solid fa-table"></i></div>
+                        <div class="pipe-info">
+                            <span class="pipe-title">BOQ Generation</span>
+                            <span class="pipe-status">Waiting...</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Terminal -->
+                <div class="terminal">
+                    <div class="terminal-header">
+                        <div class="terminal-dots">
+                            <span class="dot red"></span>
+                            <span class="dot yellow"></span>
+                            <span class="dot green"></span>
+                        </div>
+                        <span class="terminal-title">pipeline.log</span>
+                    </div>
+                    <div class="terminal-body" id="terminal-body">
+                        <div class="log-line"><span class="log-time">00:00</span> <span class="log-msg">Initializing HVAC Vision Pipeline...</span></div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ============ STEP 3: RESULTS ============ -->
+            <section id="step-results" class="step-section hidden">
+                <div class="section-header">
+                    <div>
+                        <h1>Analysis Complete</h1>
+                        <p class="section-desc">Your BOQ has been generated successfully. Review and download below.</p>
+                    </div>
+                </div>
+
+                <!-- Success Banner -->
+                <div class="success-banner">
+                    <div class="success-check">
+                        <i class="fa-solid fa-check"></i>
+                    </div>
+                    <div class="success-text">
+                        <h2>BOQ Ready for Download</h2>
+                        <p>All HVAC symbols extracted and quantified with high confidence.</p>
+                    </div>
+                </div>
+
+                <!-- Stats Cards -->
+                <div class="results-stats">
+                    <div class="result-card">
+                        <div class="result-icon blue"><i class="fa-solid fa-cubes"></i></div>
+                        <div class="result-data">
+                            <span class="result-value" id="res-items">—</span>
+                            <span class="result-label">Total Items</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon purple"><i class="fa-solid fa-layer-group"></i></div>
+                        <div class="result-data">
+                            <span class="result-value" id="res-categories">—</span>
+                            <span class="result-label">Categories</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon green"><i class="fa-solid fa-indian-rupee-sign"></i></div>
+                        <div class="result-data">
+                            <span class="result-value" id="res-total">—</span>
+                            <span class="result-label">Estimated Value</span>
+                        </div>
+                    </div>
+                    <div class="result-card">
+                        <div class="result-icon orange"><i class="fa-solid fa-bullseye"></i></div>
+                        <div class="result-data">
+                            <span class="result-value" id="res-confidence">—</span>
+                            <span class="result-label">AI Confidence</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Download Section -->
+                <div class="download-section">
+                    <a href="/download_boq" class="btn-download" id="download-btn">
+                        <i class="fa-solid fa-file-arrow-down"></i>
+                        Download Excel BOQ Report
+                    </a>
+                    <button class="btn-secondary" onclick="resetApp()">
+                        <i class="fa-solid fa-arrow-rotate-left"></i>
+                        Process Another Drawing
+                    </button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
